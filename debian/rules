@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+#
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# Setup ccache
+export CCACHE_UMASK       := 002
+export CCACHE_COMPRESS    := 1
+export CCACHE_DIR         := /var/cache/ccache
+
+# Setup kbuild
+export ARCH               := arm
+export CROSS_COMPILE      := ccache arm-linux-gnueabihf-
+export LOCALVERSION       := -armv7-1
+export KBUILD_OUTPUT      := debian/build
+
+# Setup Debian package for an armhf crossbuild
+export DEB_BUILD_ARCH     = $(shell dpkg-architecture -f -aarmhf -qDEB_BUILD_ARCH 2>/dev/null)
+export DEB_BUILD_GNU_TYPE = $(shell dpkg-architecture -f -aarmhf -qDEB_BUILD_GNU_TYPE 2>/dev/null)
+export DEB_HOST_ARCH      = $(shell dpkg-architecture -f -aarmhf -qDEB_HOST_ARCH 2>/dev/null)
+export DEB_HOST_GNU_TYPE  = $(shell dpkg-architecture -f -aarmhf -qDEB_HOST_GNU_TYPE 2>/dev/null)
+export DEB_BUILD_OPTIONS  = "parallel=4"
+
+# Convienence
+PKG_DIR := $(CURDIR)/debian/linux-image-3.19.0-rc7-armv7
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_clean:
+	@rm -rf $(KBUILD_OUTPUT)
+	@mkdir -p $(KBUILD_OUTPUT)
+	@rm -rf .config 
+	@rm -rf include/config
+
+override_dh_auto_configure:
+	make bb.org_defconfig
+
+override_dh_auto_build:
+	make -j4 zImage
+	make -j4 modules
+	make -j4 dtbs
+
+override_dh_auto_test:
+
+override_dh_auto_install: RELEASE := $(shell cat $(KBUILD_OUTPUT)/include/config/kernel.release)
+override_dh_auto_install: install_image install_modules install_dtbs
+
+install_image: IMAGE_DIR := $(PKG_DIR)/boot
+install_image:
+	mkdir -p $(IMAGE_DIR)
+	cp $(KBUILD_OUTPUT)/arch/$(ARCH)/boot/zImage $(IMAGE_DIR)/vmlinuz-$(RELEASE)
+	cp $(KBUILD_OUTPUT)/.config $(IMAGE_DIR)/config-$(RELEASE)
+	cp $(KBUILD_OUTPUT)/System.map $(IMAGE_DIR)/System.map-$(RELEASE)
+
+install_modules:
+	make INSTALL_MOD_PATH="$(PKG_DIR)" KBUILD_SRC= modules_install
+	rm -f "$(PKG_DIR)/lib/modules/$(RELEASE)/source"
+	rm -f "$(PKG_DIR)/lib/modules/$(RELEASE)/build"
+
+install_dtbs: DTB_DIR := $(PKG_DIR)/boot/dtbs
+install_dtbs: DTS_DIR := $(KBUILD_OUTPUT)/arch/$(ARCH)/boot/dts
+install_dtbs:
+	mkdir -p $(DTB_DIR)/$(RELEASE)
+	cp $(DTS_DIR)/am335x-boneblack.dtb $(DTB_DIR)/$(RELEASE)
+	cp $(DTS_DIR)/am335x-bone.dtb $(DTB_DIR)/$(RELEASE)
