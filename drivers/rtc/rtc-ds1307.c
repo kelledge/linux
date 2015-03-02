@@ -1242,9 +1242,16 @@ static int ds1307_remove(struct i2c_client *client)
 	return 0;
 }
 
+static const struct of_device_id __maybe_unused ds1307_rtc_of_match[] = {
+        { .compatible = "maxim,ds1307", },
+            { }
+};
+MODULE_DEVICE_TABLE(of, ds1307_rtc_of_match);
+
 static struct i2c_driver ds1307_driver = {
 	.driver = {
 		.name	= "rtc-ds1307",
+        .of_match_table = of_match_ptr(ds1307_rtc_of_match),
 		.owner	= THIS_MODULE,
 	},
 	.probe		= ds1307_probe,
