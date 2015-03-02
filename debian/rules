@@ -26,7 +26,7 @@ export DEB_HOST_GNU_TYPE  = $(shell dpkg-architecture -f -aarmhf -qDEB_HOST_GNU_
 export DEB_BUILD_OPTIONS  = "parallel=4"
 
 # Convienence
-PKG_DIR := $(CURDIR)/debian/linux-image-3.19.0-rc7-armv7
+PKG_DIR := $(CURDIR)/debian/linux-image-3.19.0-armv7
 
 %:
 	dh $@ --parallel

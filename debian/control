@@ -10,7 +10,7 @@ Standards-Version: 3.9.3
 Homepage: https://www.kernel.org/
 Vcs-Browser: https://github.com/kelledge/linux
 
-Package: linux-image-3.19.0-rc7-armv7
+Package: linux-image-3.19.0-armv7
 Architecture: armhf
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: <insert up to 60 chars description>
