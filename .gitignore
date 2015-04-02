@@ -48,6 +48,15 @@ Module.symvers
 /Module.markers
 
 #
+# Debian build files
+#
+debian/*.log
+debian/*.debhelper
+debian/*.substvars
+debian/build
+debian/files
+
+#
 # git files that we don't want to ignore even it they are dot-files
 #
 !.gitignore
