@@ -1,3 +1,11 @@
+linux (3.19.0+nmu1) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload.
+  * Patch applied:
+	https://github.com/RobertCNelson/linux-dev/blob/master/patches/beaglebone/phy/0003-cpsw-search-for-phy.patch 
+
+ -- Alex Ferm (PetroPower) <aferm@petropower.com>  Thu, 13 Aug 2015 12:16:27 -0500
+
 linux (3.19.0) unstable; urgency=low
 
   * See git log for change history.
